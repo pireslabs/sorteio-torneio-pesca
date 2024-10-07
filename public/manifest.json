@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Sorteio App",
+  "name": "Torneio de Pesca - Sorteio",
   "icons": [
     {
       "src": "favicon.ico",
