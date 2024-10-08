@@ -1,16 +1,21 @@
 import React from 'react';
 import './App.css';
-import {Box, Center, VStack} from "@chakra-ui/react";
+import {Box, Heading} from "@chakra-ui/react";
 
 function App() {
     return (
-        <Center>
-            <VStack width={'90%'} marginTop={'2rem'} backgroundColor={'rgba(255, 255, 255, 0.4)'} padding={'2rem'} rounded={'md'}>
-                <Box>
-                    Sorteio - Torneio de Pesca
-                </Box>
-            </VStack>
-        </Center>
+        <Box bg={"rgba(255, 255, 255, 0.5)"}
+             rounded={"md"}
+             maxW={"container.xl"}
+             marginLeft={"auto"}
+             marginRight={"auto"}
+             marginTop={"3em"}
+             paddingLeft={"3em"}
+             paddingRight={"3em"}
+             paddingTop={"2em"}
+             paddingBottom={"2em"}>
+            <Heading size={"lg"} textAlign={"center"}>Torneio de Pesca - A Casa do Lago</Heading>
+        </Box>
     );
 }
 
