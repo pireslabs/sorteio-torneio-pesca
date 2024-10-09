@@ -14,7 +14,7 @@ function App() {
     function handleClick() {
         console.log('Total de duplas:', totalDuplas, 'Total de setores:', totalSetores);
         let sorteio = new Sorteio(totalDuplas, totalSetores);
-        console.log(sorteio);
+        sorteio.sortear();
     }
 
     return (
