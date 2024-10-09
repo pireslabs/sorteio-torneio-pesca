@@ -13,6 +13,7 @@
     "@types/node": "^16.18.112",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.0",
+    "array-shuffle": "^3.0.0",
     "framer-motion": "^11.11.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
