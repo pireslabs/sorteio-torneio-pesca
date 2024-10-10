@@ -14,7 +14,7 @@ function App() {
     function handleClick() {
         console.log('Total de duplas:', totalDuplas, 'Total de setores:', totalSetores);
         let sorteio = new Sorteio(totalDuplas, totalSetores);
-        sorteio.sortear();
+        console.log(sorteio.getMapaSorteado());
     }
 
     return (

@@ -1,4 +1,5 @@
 import arrayShuffle from "array-shuffle";
+import {i} from "framer-motion/dist/m";
 
 class Sorteio {
 
@@ -56,12 +57,11 @@ class Sorteio {
         return isAllocationCompleted;
     }
 
-    public sortear(): void {
+    private sortear(): void {
         console.log('Mapa do Torneio:', this.mapaTorneio);
         console.log('Alocações:', this.alocacoes);
         let duplas: number[] = Object.assign([], this.duplas);
         console.log('Duplas do Torneio:', duplas);
-        let t = 0;
         while (!this.isAllocationCompleted()) {
             let countDupla = 1;
             while (duplas.length > 0) {
@@ -95,13 +95,13 @@ class Sorteio {
                 }
                 countDupla++;
             }
-            t++;
-            console.log('Alocações:', this.alocacoes, 'T:', t);
-            if (t === 4) {
-                break;
-            }
+            console.log('Alocações:', this.alocacoes);
         }
-        console.log('Mapa do torneio:', this.mapaTorneio);
+
+        let m = JSON.parse(JSON.stringify(this.mapaTorneio));
+        console.log('Mapa do torneio before:', m);
+        this.shuffleMapaTorneio();
+        console.log('Mapa do torneio after:', this.mapaTorneio);
     }
 
     private calcSetor(position: number): number {
@@ -111,7 +111,6 @@ class Sorteio {
     private calcSetorSlot(position: number): number {
         return position % this.tamanhoSetor;
     }
-
 
     private getFreePositions(rodada: Array<Array<number>>, dupla: number): Array<number> {
         let position = 0;
@@ -132,6 +131,52 @@ class Sorteio {
         let setores = this.alocacoes.get(dupla);
         return (setores && setores.includes(numeroSetor));
 
+    }
+
+    private shuffleMapaTorneio(): void {
+        for (let rodada of this.mapaTorneio) {
+            for (let i = 0; i < rodada.length; i++) {
+                let s: number[] = arrayShuffle(JSON.parse(JSON.stringify(rodada[i])));
+                rodada[i] = s;
+            }
+        }
+    }
+
+    public getMapaSorteado(): Map<number, number[][]> {
+        this.sortear();
+        let m = new Map<number, number[][]>();
+        for (let dupla = 1; dupla <= this.duplas.length; dupla++) {
+            let p: number[][] = this.initMapaDupla();
+            let numeroRodada = 0;
+            for (let rodada of this.mapaTorneio) {
+                let numeroRaia = 1;
+                let numeroSetor = 0;
+                for (let setor of rodada) {
+                    for (let raia of setor) {
+                        if (dupla === raia) {
+                            p[numeroRodada][numeroSetor] = numeroRaia;
+                        }
+                        numeroRaia++;
+                    }
+                    numeroSetor++;
+                }
+                numeroRodada++;
+            }
+            m.set(dupla, p);
+        }
+        return m;
+    }
+
+    private initMapaDupla(): number[][] {
+        let mapaRodadas: number[][] = [];
+        for (let i = 0; i < this.totalSetores; i++) {
+            let setores: number[] = [];
+            for (let k: number = 0; k < this.totalSetores; k++) {
+                setores.push(-1);
+            }
+            mapaRodadas.push(setores);
+        }
+        return mapaRodadas;
     }
 }
 
