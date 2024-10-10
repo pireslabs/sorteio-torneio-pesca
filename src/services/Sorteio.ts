@@ -1,5 +1,4 @@
 import arrayShuffle from "array-shuffle";
-import {position} from "@chakra-ui/react";
 
 class Sorteio {
 
@@ -27,12 +26,20 @@ class Sorteio {
         for (let i = 0; i < this.totalDuplas; i++) {
             aDuplas[i] = i + 1;
         }
-        this.duplas =  arrayShuffle(aDuplas);
+        this.duplas = arrayShuffle(aDuplas);
     }
 
     private initMapaTorneio(): void {
         for (let i = 0; i < this.totalSetores; i++) {
-            this.mapaTorneio.push(new Array(this.totalSetores).fill(new Array(this.tamanhoSetor).fill(0)));
+            let rodada = new Array<Array<number>>();
+            for (let j = 0; j < this.totalSetores; j++) {
+                let setor: Array<number> = new Array<number>();
+                for (let k = 0; k < this.tamanhoSetor; k++) {
+                    setor.push(0);
+                }
+                rodada.push(setor);
+            }
+            this.mapaTorneio.push(rodada);
         }
     }
 
@@ -51,45 +58,50 @@ class Sorteio {
 
     public sortear(): void {
         console.log('Mapa do Torneio:', this.mapaTorneio);
-        let c = 0;
-        while ((!this.isAllocationCompleted()) && c < 3) {
-            let duplas: number[] = Object.assign([], this.duplas);
-            console.log('Duplas do Torneio:', duplas);
+        console.log('Alocações:', this.alocacoes);
+        let duplas: number[] = Object.assign([], this.duplas);
+        console.log('Duplas do Torneio:', duplas);
+        let t = 0;
+        while (!this.isAllocationCompleted()) {
+            let countDupla = 1;
             while (duplas.length > 0) {
                 let dupla: number | undefined = duplas.pop();
-                console.log('Dupla:', dupla);
-                console.log('Duplas do Torneio:', duplas);
-                if (dupla) {
+                console.log(countDupla, 'Dupla:', dupla, 'Duplas restantes:', duplas);
+                if (typeof dupla != 'undefined') {
                     let rNumber = 1;
                     for (let rodada of this.mapaTorneio) {
-                        console.log(`Rodada ${rNumber}:`, rodada);
-                        let freePositions = arrayShuffle(this.getFreePositions(rodada, dupla));
-                        console.log(`Free Positions:`, freePositions);
+                        let freePositions = this.getFreePositions(rodada, dupla);
                         if (freePositions.length === 0) {
                             continue;
                         }
+                        console.log(`Free Positions:`, freePositions);
                         let position = freePositions.pop()
                         console.log('Position:', position);
-                        if (position) {
+                        if (typeof position !== 'undefined') {
                             let setor = this.calcSetor(position);
                             let slot = this.calcSetorSlot(position);
+                            console.log('Setor:', setor, 'Raia:', slot);
                             rodada[setor][slot] = dupla;
                             let setores = this.alocacoes.get(dupla);
-                            if (setores) {
-                                setores.push(setor)
-                                this.alocacoes.set(dupla, setores);
-                            } else {
-                                let setores = [setor];
-                                this.alocacoes.set(dupla, setores);
+                            if (typeof setores === 'undefined') {
+                                setores = [];
                             }
+                            setores.push(setor);
+                            this.alocacoes.set(dupla, setores);
                         }
+                        console.log(`Rodada ${rNumber}:`, rodada);
                         rNumber++;
                     }
                 }
+                countDupla++;
             }
-            c++;
+            t++;
+            console.log('Alocações:', this.alocacoes, 'T:', t);
+            if (t === 4) {
+                break;
+            }
         }
-        console.log(this.mapaTorneio);
+        console.log('Mapa do torneio:', this.mapaTorneio);
     }
 
     private calcSetor(position: number): number {
@@ -105,7 +117,7 @@ class Sorteio {
         let position = 0;
         let freePositions: Array<number> = [];
         for (let setor of rodada) {
-            for (let slot of setor ) {
+            for (let slot of setor) {
                 let numeroSetor: number = this.calcSetor(position);
                 if ((slot === 0) && (!this.inSector(dupla, numeroSetor))) {
                     freePositions.push(position);
@@ -123,4 +135,4 @@ class Sorteio {
     }
 }
 
-export { Sorteio };
+export {Sorteio};
