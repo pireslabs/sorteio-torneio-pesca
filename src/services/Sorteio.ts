@@ -1,5 +1,4 @@
 import arrayShuffle from "array-shuffle";
-import {i} from "framer-motion/dist/m";
 
 class Sorteio {
 
