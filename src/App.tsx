@@ -1,20 +1,20 @@
 import React from 'react';
 import './App.css';
 import {Box, Button, Heading, Input, VStack} from "@chakra-ui/react";
-import {Sorteio} from "./services/Sorteio";
+import {Alocacao, Sorteio} from "./services/Sorteio";
 
 function App() {
 
-    const [totalDuplas, setTotalDuplas] = React.useState(0);
-    const [totalSetores, setTotalSetores] = React.useState(0);
+    const [totalDuplas, setTotalDuplas] = React.useState<number>(0);
+    const [totalSetores, setTotalSetores] = React.useState<number>(0);
+    const [mapaAlocacao, setMapaAlocacao] = React.useState<Map<number, Alocacao[]>>(new Map<number, Alocacao[]>());
 
     const handleChangeTotalDuplas = (event: React.ChangeEvent<HTMLInputElement>) => setTotalDuplas(parseInt(event.target.value));
     const handleChangeTotalSetores = (event: React.ChangeEvent<HTMLInputElement>) => setTotalSetores(parseInt(event.target.value));
 
     function handleClick() {
-        console.log('Total de duplas:', totalDuplas, 'Total de setores:', totalSetores);
         let sorteio = new Sorteio(totalDuplas, totalSetores);
-        console.log(sorteio.getMapaSorteado());
+        setMapaAlocacao(sorteio.getMapaSorteado());
     }
 
     return (

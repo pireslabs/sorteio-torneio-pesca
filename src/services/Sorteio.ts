@@ -1,5 +1,10 @@
 import arrayShuffle from "array-shuffle";
 
+export interface Alocacao {
+    setor: number;
+    raia: number;
+}
+
 class Sorteio {
 
     private totalDuplas: number = 0;
@@ -96,9 +101,6 @@ class Sorteio {
             }
             console.log('Alocações:', this.alocacoes);
         }
-
-        let m = JSON.parse(JSON.stringify(this.mapaTorneio));
-        console.log('Mapa do torneio before:', m);
         this.shuffleMapaTorneio();
         console.log('Mapa do torneio after:', this.mapaTorneio);
     }
@@ -141,41 +143,30 @@ class Sorteio {
         }
     }
 
-    public getMapaSorteado(): Map<number, number[][]> {
+    public getMapaSorteado(): Map<number, Alocacao[]> {
         this.sortear();
-        let m = new Map<number, number[][]>();
+        let m = new Map<number, Alocacao[]>();
         for (let dupla = 1; dupla <= this.duplas.length; dupla++) {
-            let p: number[][] = this.initMapaDupla();
-            let numeroRodada = 0;
+            let p: Alocacao[] = [];
             for (let rodada of this.mapaTorneio) {
                 let numeroRaia = 1;
-                let numeroSetor = 0;
+                let numeroSetor = 1;
                 for (let setor of rodada) {
                     for (let raia of setor) {
                         if (dupla === raia) {
-                            p[numeroRodada][numeroSetor] = numeroRaia;
+                            p.push({
+                                setor: numeroSetor,
+                                raia: numeroRaia
+                            });
                         }
                         numeroRaia++;
                     }
                     numeroSetor++;
                 }
-                numeroRodada++;
             }
             m.set(dupla, p);
         }
         return m;
-    }
-
-    private initMapaDupla(): number[][] {
-        let mapaRodadas: number[][] = [];
-        for (let i = 0; i < this.totalSetores; i++) {
-            let setores: number[] = [];
-            for (let k: number = 0; k < this.totalSetores; k++) {
-                setores.push(-1);
-            }
-            mapaRodadas.push(setores);
-        }
-        return mapaRodadas;
     }
 }
 
