@@ -18,6 +18,9 @@ import {
 } from "@chakra-ui/react";
 import {Alocacao, Sorteio} from "./services/Sorteio";
 import PairCard from "./components/PairCard/PairCard";
+import TrophyIcon from "./icons/material/TrophyIcon";
+import SunnyIcon from "./icons/material/SunnyIcon";
+import DarkModeIcon from "./icons/material/DarkModeIcon";
 
 
 function App() {
@@ -65,10 +68,10 @@ function App() {
             marginRight={"auto"}
             marginTop={"1em"}
             marginBottom={"1em"}
-            paddingLeft={"3em"}
-            paddingRight={"3em"}
-            paddingTop={"2em"}
-            paddingBottom={"2em"}>
+            paddingLeft={{base: "1em", md:"3em"}}
+            paddingRight={{base: "1em", md:"3em"}}
+            paddingTop={"1em"}
+            paddingBottom={"1em"}>
             <VStack gap={8}>
                 <VStack gap={5}>
                     <Box bg={"rgba(255, 255, 255, 0.7)"} padding={2} borderRadius={"full"}>
@@ -85,7 +88,7 @@ function App() {
                 {
                     etapa !== 0 &&
                     <>
-                        <Button css={css({"@media print": {display: "none"}})} colorScheme={"blackAlpha"}
+                        <Button css={css({"@media print": {display: "none"}})} size={"lg"}
                                 onClick={handleVoltar}>Voltar</Button>
                     </>
                 }
@@ -99,11 +102,7 @@ function App() {
                                   onClick={() => setEtapa(1)}>
                                 <CardBody>
                                     <VStack>
-                                        <svg xmlns="http://www.w3.org/2000/svg" height="72px" viewBox="0 -960 960 960"
-                                             width="72px">
-                                            <path
-                                                d="M450-770v-150h60v150h-60Zm256 106-42-42 106-107 42 43-106 106Zm64 214v-60h150v60H770ZM450-40v-150h60v150h-60ZM253-665 148-770l42-42 106 106-43 41Zm518 517L664-254l41-41 108 104-42 43ZM40-450v-60h150v60H40Zm151 302-43-42 105-105 22 20 22 21-106 106Zm289-92q-100 0-170-70t-70-170q0-100 70-170t170-70q100 0 170 70t70 170q0 100-70 170t-170 70Zm0-60q75 0 127.5-52.5T660-480q0-75-52.5-127.5T480-660q-75 0-127.5 52.5T300-480q0 75 52.5 127.5T480-300Zm0-180Z"/>
-                                        </svg>
+                                        <SunnyIcon width={{base:"3em", md:"5em"}} height={{base:"3em", md:"5em"}} />
                                         <Text fontSize={{base: "2em", md: "3em"}} fontWeight={"medium"}>Etapa
                                             Diurna</Text>
                                     </VStack>
@@ -113,11 +112,7 @@ function App() {
                                   onClick={() => setEtapa(2)}>
                                 <CardBody>
                                     <VStack>
-                                        <svg xmlns="http://www.w3.org/2000/svg" height="72px" viewBox="0 -960 960 960"
-                                             width="72px">
-                                            <path
-                                                d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q8 0 17 .5t23 1.5q-36 32-56 79t-20 99q0 90 63 153t153 63q52 0 99-18.5t79-51.5q1 12 1.5 19.5t.5 14.5q0 150-105 255T480-120Zm0-60q109 0 190-67.5T771-406q-25 11-53.67 16.5Q688.67-384 660-384q-114.69 0-195.34-80.66Q384-545.31 384-660q0-24 5-51.5t18-62.5q-98 27-162.5 109.5T180-480q0 125 87.5 212.5T480-180Zm-4-297Z"/>
-                                        </svg>
+                                        <DarkModeIcon width={{base:"3em", md:"5em"}} height={{base:"3em", md:"5em"}}/>
                                         <Text fontSize={{base: "2em", md: "3em"}} fontWeight={"medium"}>Etapa
                                             Noturna</Text>
                                     </VStack>
@@ -129,8 +124,17 @@ function App() {
                 {
                     etapa === 1 &&
                     <>
-                        <Button css={css({"@media print": {display: "none"}})} colorScheme={"blackAlpha"}
-                                onClick={handleClick}>Sortear</Button>
+                        {
+                            mapaAlocacaoDiurna.size === 0 &&
+                            <Card bg={"rgba(255, 255, 255, 0.8)"} css={css({"@media print": {display: "none"}})} onClick={handleClick} cursor={"pointer"}>
+                                <CardBody _hover={{bg:"rgba(6,73,248,0.6)"}}>
+                                    <Flex flexFlow={"column"} alignItems={"center"}>
+                                        <TrophyIcon width={{base:"3em", md:"5em"}} height={{base:"3em", md:"5em"}} />
+                                        <Text fontSize={"2em"} fontWeight={"medium"}>Sortear</Text>
+                                    </Flex>
+                                </CardBody>
+                            </Card>
+                        }
                         <Flex css={css({
                             "@media print": {gap: 0}
                         })} flexFlow={"row"} flexWrap={"wrap"} gap={"6"} justifyContent={"center"}>
@@ -145,7 +149,7 @@ function App() {
                                         <CardBody display={"flex"} flexFlow={"column"} justifyContent={"center"}>
                                             <VStack alignContent={"baseline"}>
                                                 <Heading css={css({"@media print": {fontSize: "6em"}})}
-                                                         fontSize={"10em"} textAlign={"center"}>{key}</Heading>
+                                                         fontSize={{base:"8em", md:"10em"}} textAlign={"center"}>{key}</Heading>
                                                 <OrderedList>
                                                     {
                                                         value.map((item) => (
@@ -189,7 +193,7 @@ function App() {
                                     <CardBody display={"flex"} flexFlow={"column"}
                                               justifyContent={"center"}>
                                         <VStack alignContent={"baseline"}>
-                                            <Text fontSize={"2em"}>Duplas selecionadas</Text>
+                                            <Text fontWeight={"medium"} fontSize={"2em"}>Duplas selecionadas</Text>
                                             <Heading fontSize={"3em"}
                                                      textAlign={"center"}>{totalSelected}/10</Heading>
                                             {
@@ -204,10 +208,18 @@ function App() {
                                 <Flex flexFlow={"row"} flexWrap={"wrap"} gap={"6"} justifyContent={"center"}>
                                     {
                                         [...Array(20)].map((x, y) => (
-                                            <PairCard pairNumber={(y + 1).toString()} onSelected={() => {
+                                            <PairCard selectEnabled={(selectedCards.size < 10)} pairNumber={(y + 1).toString()} onSelected={() => {
                                                 let r = selectedCards.delete((y + 1));
-                                                if (!r) {
+                                                if ((!r) && selectedCards.size < 10) {
                                                     selectedCards.add(y + 1);
+                                                } else if (selectedCards.size === 10) {
+                                                    toast({
+                                                        title: 'Limite de duplas selecionadas atingido',
+                                                        description: 'Somente 10 duplas podem ser selecionadas para e etapa noturna.',
+                                                        status: 'error',
+                                                        duration: 3000,
+                                                        isClosable: false
+                                                    });
                                                 }
                                                 setTotalSelected(selectedCards.size);
                                             }}/>
