@@ -5,41 +5,55 @@ export interface Alocacao {
     raia: number;
 }
 
+const copyObject = (toCopy: any): any => {
+    return JSON.parse(JSON.stringify(toCopy));
+}
+
 class Sorteio {
 
     private totalDuplas: number = 0;
     private totalSetores: number = 0;
-    private tamanhoSetor: number = 0;
-    private alocacoes: Map<number, number[]>;
-    private mapaTorneio: Array<Array<Array<number>>> = [];
+    private totalRaiasSetor: number = 0;
+    private alocacoes: Map<number, Set<number>>;
     private duplas: Array<number> = [];
+    private mapaTorneio: Array<Array<Array<number>>> = [];
 
-    constructor(duplas: number, setores: number) {
-        this.totalDuplas = duplas;
+    constructor(duplas: number | number[], setores: number) {
+        if (Array.isArray(duplas)) {
+            this.totalDuplas = duplas.length;
+            this.duplas = duplas;
+        } else {
+            this.totalDuplas = duplas;
+        }
         this.totalSetores = setores;
-        this.tamanhoSetor = Math.floor(this.totalDuplas / this.totalSetores);
+        this.totalRaiasSetor = Math.floor(this.totalDuplas / this.totalSetores);
         if ((this.totalDuplas % this.totalSetores) > 0) {
             throw Error('A divisão de duplas por setor precisa ser exata.');
         }
-        this.alocacoes = new Map<number, number[]>();
-        this.initMapaTorneio();
-        this.sortearDuplas();
-    }
-
-    private sortearDuplas(): void {
-        let aDuplas: number[] = [];
-        for (let i = 0; i < this.totalDuplas; i++) {
-            aDuplas[i] = i + 1;
+        this.alocacoes = new Map<number, Set<number>>();
+        if (this.duplas.length === 0) {
+            this.createDuplas();
+        } else {
+            this.duplas = arrayShuffle(this.duplas);
         }
-        this.duplas = arrayShuffle(aDuplas);
+        this.createMapaTorneio();
     }
 
-    private initMapaTorneio(): void {
+    private createDuplas(): void {
+        let duplas: number[] = [];
+        for (let i = 0; i < this.totalDuplas; i++) {
+            duplas[i] = i + 1;
+        }
+        this.duplas = arrayShuffle(duplas);
+        console.log('Duplas:', this.duplas);
+    }
+
+    private createMapaTorneio(): void {
         for (let i = 0; i < this.totalSetores; i++) {
             let rodada = new Array<Array<number>>();
             for (let j = 0; j < this.totalSetores; j++) {
                 let setor: Array<number> = new Array<number>();
-                for (let k = 0; k < this.tamanhoSetor; k++) {
+                for (let k = 0; k < this.totalRaiasSetor; k++) {
                     setor.push(0);
                 }
                 rodada.push(setor);
@@ -48,105 +62,58 @@ class Sorteio {
         }
     }
 
-    private isAllocationCompleted(): boolean {
-        let isAllocationCompleted = true;
-        if (this.alocacoes.size === 0) {
-            return false;
-        }
-        for (let value of this.alocacoes.values()) {
-            if (value.length < 4) {
-                isAllocationCompleted = false;
+    private isSetorCompleto(setor: number[]): boolean {
+        for (let raia of setor) {
+            if (raia === 0) {
+                return false;
             }
         }
-        return isAllocationCompleted;
+        return true;
     }
 
     private sortear(): void {
-        console.log('Mapa do Torneio:', this.mapaTorneio);
-        console.log('Alocações:', this.alocacoes);
-        let duplas: number[] = Object.assign([], this.duplas);
-        console.log('Duplas do Torneio:', duplas);
-        while (!this.isAllocationCompleted()) {
-            let countDupla = 1;
-            while (duplas.length > 0) {
-                let dupla: number | undefined = duplas.pop();
-                console.log(countDupla, 'Dupla:', dupla, 'Duplas restantes:', duplas);
-                if (typeof dupla != 'undefined') {
-                    let rNumber = 1;
-                    for (let rodada of this.mapaTorneio) {
-                        let freePositions = this.getFreePositions(rodada, dupla);
-                        if (freePositions.length === 0) {
-                            continue;
-                        }
-                        console.log(`Free Positions:`, freePositions);
-                        let position = freePositions.pop()
-                        console.log('Position:', position);
-                        if (typeof position !== 'undefined') {
-                            let setor = this.calcSetor(position);
-                            let slot = this.calcSetorSlot(position);
-                            console.log('Setor:', setor, 'Raia:', slot);
-                            rodada[setor][slot] = dupla;
-                            let setores = this.alocacoes.get(dupla);
-                            if (typeof setores === 'undefined') {
-                                setores = [];
+        for (let rodada of this.mapaTorneio) {
+            let duplas: number[] = copyObject(this.duplas);
+            let numeroSetor: number = 0;
+            for(let setor of rodada) {
+                let alocacoesSetor = this.alocacoes.get(numeroSetor)
+                if (typeof alocacoesSetor === "undefined") {
+                    alocacoesSetor = new Set<number>();
+                }
+                while (!this.isSetorCompleto(setor)) {
+                    for (let i = 0; i < setor.length; i++) {
+                        if (setor[i] === 0) {
+                            let dupla = duplas.shift();
+                            if (typeof dupla !== "undefined") {
+                                if (!alocacoesSetor?.has(dupla)) {
+                                    setor[i] = dupla;
+                                    alocacoesSetor.add(dupla);
+                                } else {
+                                    duplas.push(dupla);
+                                }
                             }
-                            setores.push(setor);
-                            this.alocacoes.set(dupla, setores);
                         }
-                        console.log(`Rodada ${rNumber}:`, rodada);
-                        rNumber++;
                     }
                 }
-                countDupla++;
-            }
-            console.log('Alocações:', this.alocacoes);
-        }
-        this.shuffleMapaTorneio();
-        console.log('Mapa do torneio after:', this.mapaTorneio);
-    }
-
-    private calcSetor(position: number): number {
-        return Math.floor(position / this.tamanhoSetor);
-    }
-
-    private calcSetorSlot(position: number): number {
-        return position % this.tamanhoSetor;
-    }
-
-    private getFreePositions(rodada: Array<Array<number>>, dupla: number): Array<number> {
-        let position = 0;
-        let freePositions: Array<number> = [];
-        for (let setor of rodada) {
-            for (let slot of setor) {
-                let numeroSetor: number = this.calcSetor(position);
-                if ((slot === 0) && (!this.inSector(dupla, numeroSetor))) {
-                    freePositions.push(position);
-                }
-                position++;
+                this.alocacoes.set(numeroSetor, alocacoesSetor);
+                numeroSetor++;
             }
         }
-        return freePositions;
-    }
-
-    private inSector(dupla: number, numeroSetor: number) {
-        let setores = this.alocacoes.get(dupla);
-        return (setores && setores.includes(numeroSetor));
-
-    }
-
-    private shuffleMapaTorneio(): void {
         for (let rodada of this.mapaTorneio) {
             for (let i = 0; i < rodada.length; i++) {
-                let s: number[] = arrayShuffle(JSON.parse(JSON.stringify(rodada[i])));
-                rodada[i] = s;
+                rodada[i] = arrayShuffle(rodada[i]);
             }
         }
+        console.log('Mapa do Torneio:', this.mapaTorneio);
+        console.log('Alocações:', this.alocacoes);
     }
 
     public getMapaSorteado(): Map<number, Alocacao[]> {
         this.sortear();
         let m = new Map<number, Alocacao[]>();
-        for (let dupla = 1; dupla <= this.duplas.length; dupla++) {
+        this.duplas.sort((a, b) => a - b);
+        console.log('Duplas ordenada:', this.duplas);
+        for (let dupla of this.duplas) {
             let p: Alocacao[] = [];
             for (let rodada of this.mapaTorneio) {
                 let numeroRaia = 1;
