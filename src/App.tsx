@@ -80,7 +80,7 @@ function App() {
                     <Box bg={"rgba(255, 255, 255, 0.7)"} paddingTop={3} paddingBottom={3} paddingLeft={5}
                          borderRadius={"xl"}
                          paddingRight={5}>
-                        <Heading textAlign={"center"} fontSize={{base: "2em", md: "4em"}}>7º Torneio de Pesca Esportiva
+                        <Heading textAlign={"center"} fontSize={{base: "2em", md: "4em"}}>Torneio de Pesca Esportiva
                             - Sorteio</Heading>
                     </Box>
                 </VStack>
